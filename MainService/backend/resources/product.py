@@ -11,7 +11,7 @@ class ProductResource(Resource):
 			if product:
 				return marshal(product, product_fields), 200
 			else:
-				return {'data': {}, 'errors': ['No such product'], 'status': 'error'}, 404
+				return {'data': {}, 'errors': ['No such product'], 'msg': 'error'}, 404
 		else:
 			args = product_parser.parse_args(strict=True)
 			query = Product.query
@@ -20,12 +20,12 @@ class ProductResource(Resource):
 			if args['category']:
 				category = Category.query.filter_by(name=args['category']).first()
 				if not category:
-					return {'data': [], 'errors': ['No such category'], 'status': 'error'}, 404
+					return {'data': [], 'errors': ['No such category'], 'msg': 'error'}, 404
 				category_game_filters['category_id'] = category.id
 			if args['game']:
 				game = Game.query.filter_by(name=args['game']).first()
 				if not game:
-					return {'data': [], 'errors': ['No such game'], 'status': 'error'}, 404
+					return {'data': [], 'errors': ['No such game'], 'msg': 'error'}, 404
 				category_game_filters['game_id'] = game.id
 
 			if category_game_filters:
@@ -40,4 +40,4 @@ class ProductResource(Resource):
 			if args['maxPrice']:
 				query = query.filter(Product.price < args['maxPrice'])
 
-			return {'data': marshal(query.all(), product_fields), 'errors': [], 'status': 'ok'}, 200
+			return {'data': marshal(query.all(), product_fields), 'errors': [], 'msg': 'ok'}, 200

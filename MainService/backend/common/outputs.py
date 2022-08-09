@@ -54,8 +54,6 @@ user_fields = {
 	'username': fields.String,
 	'email': fields.String,
 	'country': fields.Nested(country_fields),
-	'available_quantity': fields.Integer,
-	'min_quantity': fields.Integer,
 	'created_at': fields.DateTime,
 	'profile_picture': fields.Nested(image_fields, allow_null=True)
 }

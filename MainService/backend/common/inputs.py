@@ -15,7 +15,6 @@ review_search_parser.add_argument('productId', type=int)
 review_search_parser.add_argument('authorId', type=int)
 
 review_create_parser = reqparse.RequestParser(bundle_errors=True)
-review_create_parser.add_argument('authorId', type=int, required=True)
 review_create_parser.add_argument('productId', type=int, required=True)
 review_create_parser.add_argument('rating', type=int, required=True)
 review_create_parser.add_argument('comment', type=str, required=True)
@@ -33,3 +32,21 @@ cart_add_item_parser.add_argument('productId', type=int, required=True)
 
 cart_delete_item_parser = reqparse.RequestParser()
 cart_delete_item_parser.add_argument('productId', type=int)
+
+# === Token ===
+token_create_parser = reqparse.RequestParser(bundle_errors=True)
+token_create_parser.add_argument('username', type=str, required=True)
+token_create_parser.add_argument('password', type=str, required=True)
+
+# === User ===
+user_create_parser = reqparse.RequestParser(bundle_errors=True)
+user_create_parser.add_argument('username', type=str, required=True)
+user_create_parser.add_argument('password', type=str, required=True)
+user_create_parser.add_argument('email', type=str, required=True)
+user_create_parser.add_argument('countryId', type=int, required=True)
+# user_create_parser.add_argument('profile_picture')
+
+user_edit_parser = user_create_parser.copy()
+user_edit_parser.remove_argument('password')
+user_edit_parser.add_argument('oldPassword', type=str, required=True)
+user_edit_parser.add_argument('newPassword', type=str, required=True)

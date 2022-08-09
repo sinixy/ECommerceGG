@@ -10,6 +10,6 @@ class GameResource(Resource):
 			if game:
 				return marshal(game, game_fields), 200
 			else:
-				return {'data': {}, 'errors': ['No such game'], 'status': 'error'}, 404
+				return {'data': {}, 'errors': ['No such game'], 'msg': 'error'}, 404
 		else:
 			return marshal(Game.query.all(), game_fields), 200

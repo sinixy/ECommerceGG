@@ -10,6 +10,6 @@ class CategoryResource(Resource):
 			if category:
 				return marshal(category, category_fields), 200
 			else:
-				return {'data': {}, 'errors': ['No such category'], 'status': 'error'}, 404
+				return {'data': {}, 'errors': ['No such category'], 'msg': 'error'}, 404
 		else:
 			return marshal(Category.query.all(), category_fields), 200

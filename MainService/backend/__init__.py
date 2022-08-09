@@ -1,14 +1,17 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 
 
 db = SQLAlchemy()
+jwt = JWTManager()
 
 def create_backend_app(app_config):
 	app = Flask(__name__)
 	app.config.from_object(app_config)
 	
 	db.init_app(app)
+	jwt.init_app(app)
 
 	from .api import api_blueprint
 	app.register_blueprint(api_blueprint, url_prefix='/api/v1')
