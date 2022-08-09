@@ -54,6 +54,7 @@ class CartItem(db.Model):
 	__tablename__ = 'CartItem'
 
 	id = db.Column(db.Integer,  primary_key=True)
+	quantity = db.Column(db.Integer, nullable=False, default=1)
 	cart_id = db.Column(db.Integer, db.ForeignKey('Cart.id', ondelete='CASCADE'), nullable=False)
 	cart = db.relationship('Cart', backref='items')
 	product_id = db.Column(db.Integer, db.ForeignKey('Product.id', ondelete='CASCADE'), nullable=False)
