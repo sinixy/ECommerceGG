@@ -5,16 +5,39 @@ from ..common.inputs import review_search_parser, review_create_parser, review_e
 from ..common.outputs import review_fields
 
 
-class ReviewResource(Resource):
-	method_decorators = {'post': [login_required], 'patch': [login_required]}
+def access_required(f):
+	def decorator(current_user, review_id=0):
+		review = Review.query.get(review_id)
+		if not review:
+			return {'status': 'error', 'message': 'No such review'}, 404
+		if review.author_id != current_user.id:
+			return {'status': 'error', 'message': 'You cannot modify this review'}, 403
+		return f(current_user, review)
+	return decorator
 
-	def get(self, review_id=None):
+def validate_args(args):
+	rating = args['rating']
+	if rating > 5 or rating < 1:
+		return {'data': {'rating': 'Invalid rating range'}, 'status': 'fail'}, 400
+	comment = args['comment']
+	if len(comment) == 0:
+		return {'data': {'comment': 'Comment cannot be empty'}, 'status': 'fail'}, 400
+	return {'status': 'success', 'message': 'ok'}, 200
+
+class ReviewResource(Resource):
+	method_decorators = {
+		'post': [login_required],
+		'patch': [access_required, login_required],
+		'delete': [access_required, login_required]
+	}
+
+	def get(self, review_id=0):
 		if review_id:
 			review = Review.query.get(review_id)
 			if review:
-				return marshal(review, review_fields), 200
+				return {'data': {'review': marshal(review, review_fields)}, 'status': 'success'}
 			else:
-				return {'data': {}, 'errors': ['No such review'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such review'}, 404
 		else:
 			args = review_search_parser.parse_args(strict=True)
 			query = Review.query
@@ -22,69 +45,49 @@ class ReviewResource(Resource):
 			if args['productId']:
 				product = Product.query.get(args['productId'])
 				if not product:
-					return {'data': [], 'errors': ['No such product'], 'msg': 'error'}, 404
+					return {'status': 'error', 'message': 'No such product'}, 404
 				query = query.filter_by(product=product)
 			if args['authorId']:
 				author = User.query.get(args['authorId'])
 				if not author:
-					return {'data': [], 'errors': ['No such user'], 'msg': 'error'}, 404
+					return {'status': 'error', 'message': 'No such user'}, 404
 				query = query.filter_by(author=author)
 
-			return {'data': marshal(query.all(), review_fields), 'errors': [], 'msg': 'ok'}, 200
+			return {'data': {'reviews': marshal(query.all(), review_fields)}, 'status': 'success'}
 
 	def post(self, current_user):
 		args = review_create_parser.parse_args(strict=True)
 
 		product = Product.query.get(args['productId'])
 		if not product:
-			return {'data': {}, 'errors': ['No such product'], 'msg': 'error'}, 404
+			return {'status': 'error', 'message': 'No such product'}, 404
 
-		rating = args['rating']
-		if rating > 5 or rating < 1:
-			return {'data': {}, 'errors': ['Invalid rating range'], 'msg': 'error'}, 400
+		validation = validate_args(args)
+		if validation[1] != 200:
+			return validation
 
-		new_review = Review(author=current_user, product=product, rating=rating, comment=args['comment'])
+		new_review = Review(author=current_user, product=product, rating=args['rating'], comment=args['comment'])
 		db.session.add(new_review)
 		db.session.commit()
 		db.session.refresh(new_review)
 
-		return {'data': marshal(new_review, review_fields), 'errors': [], 'msg': 'ok'}, 201
+		return {'data': {'review': marshal(new_review, review_fields)}, 'status': 'success'}, 201
 
-	def patch(self, current_user, review_id=None):
-		if review_id:
-			review = Review.query.get(review_id)
-			if not review:
-				return {'data': {}, 'errors': ['No such review'], 'msg': 'error'}, 404
-			if review.author_id != current_user.id:
-				return {'data': {}, 'errors': ['You cannot edit this review']}, 403
+	def patch(self, current_user, review):
+		args = review_edit_parser.parse_args(strict=True)
 
-			args = review_edit_parser.parse_args(strict=True)
+		validation = validate_args(args)
+		if validation[1] != 200:
+			return validation
 
-			rating = args['rating']
-			if rating > 5 or rating < 1:
-				return {'data': {}, 'errors': ['Invalid rating range'], 'msg': 'error'}, 400
+		review.rating = args['rating']
+		review.comment = args['comment']
+		db.session.commit()
 
-			comment = args['comment']
-			if len(comment) == 0:
-				return {'data': {}, 'errors': ['Comment cannot be empty'], 'msg': 'error'}, 400
+		return {'data': None, 'status': 'success'}
 
-			review.rating = rating
-			review.comment = comment
-			db.session.commit()
+	def delete(self, review):
+		db.session.delete(review)
+		db.session.commit()
 
-			return {'data': {}, 'errors': [], 'msg': 'ok'}, 204
-		else:
-			return {'data': {}, 'errors': ['Review not specified'], 'msg': 'error'}, 400
-
-	def delete(self, review_id=None):
-		if review_id:
-			review = Review.query.get(review_id)
-			if not review:
-				return {'data': {}, 'errors': ['No such review'], 'msg': 'error'}, 404
-
-			db.session.delete(review)
-			db.session.commit()
-
-			return {'data': {}, 'errors': [], 'msg': 'ok'}, 204
-		else:
-			return {'data': {}, 'errors': ['Review not specified'], 'msg': 'error'}, 400
+		return {'data': None, 'status': 'success'}

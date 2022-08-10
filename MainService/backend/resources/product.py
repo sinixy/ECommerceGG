@@ -5,13 +5,13 @@ from ..common.outputs import product_fields
 
 
 class ProductResource(Resource):
-	def get(self, product_id=None):
+	def get(self, product_id=0):
 		if product_id:
 			product = Product.query.get(product_id)
 			if product:
-				return marshal(product, product_fields), 200
+				return {'data': {'product': marshal(product, product_fields)}, 'status': 'success'}
 			else:
-				return {'data': {}, 'errors': ['No such product'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such product'}, 404
 		else:
 			args = product_parser.parse_args(strict=True)
 			query = Product.query
@@ -20,12 +20,12 @@ class ProductResource(Resource):
 			if args['category']:
 				category = Category.query.filter_by(name=args['category']).first()
 				if not category:
-					return {'data': [], 'errors': ['No such category'], 'msg': 'error'}, 404
+					return {'status': 'error', 'message': 'No such category'}, 404
 				category_game_filters['category_id'] = category.id
 			if args['game']:
 				game = Game.query.filter_by(name=args['game']).first()
 				if not game:
-					return {'data': [], 'errors': ['No such game'], 'msg': 'error'}, 404
+					return {'status': 'error', 'message': 'No such game'}, 404
 				category_game_filters['game_id'] = game.id
 
 			if category_game_filters:
@@ -40,4 +40,4 @@ class ProductResource(Resource):
 			if args['maxPrice']:
 				query = query.filter(Product.price < args['maxPrice'])
 
-			return {'data': marshal(query.all(), product_fields), 'errors': [], 'msg': 'ok'}, 200
+			return {'data': {'products': marshal(query.all(), product_fields)}, 'status': 'success'}

@@ -4,12 +4,12 @@ from ..common.outputs import category_fields
 
 
 class CategoryResource(Resource):
-	def get(self, category_id=None):
+	def get(self, category_id=0):
 		if category_id:
 			category = Category.query.get(category_id)
 			if category:
-				return marshal(category, category_fields), 200
+				return {'data': {'category': marshal(category, category_fields)}, 'status': 'success'}
 			else:
-				return {'data': {}, 'errors': ['No such category'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such category'}, 404
 		else:
-			return marshal(Category.query.all(), category_fields), 200
+			return {'data': {'categories': marshal(Category.query.all(), category_fields)}, 'status': 'success'}

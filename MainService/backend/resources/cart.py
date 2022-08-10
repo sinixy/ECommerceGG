@@ -6,12 +6,12 @@ from ..common.outputs import cart_fields, cart_item_fields
 
 
 def access_required(f):
-	def decorator(current_user, cart_id):
+	def decorator(current_user, cart_id=0):
 		cart = Cart.query.get(cart_id)
 		if not cart:
-			return {'data': {}, 'errors': ['No such cart'], 'msg': 'error'}, 404
+			return {'status': 'error', 'message': 'No such cart'}, 404
 		if cart.user_id != current_user.id:
-			return {'data': {}, 'errors': ['You cannot access this cart'], 'msg': 'error'}, 403
+			return {'status': 'error', 'message': 'You cannot access this cart'}, 403
 		return f(current_user, cart)
 	return decorator
 
@@ -20,18 +20,18 @@ class CartResource(Resource):
 	method_decorators = [access_required, login_required]
 
 	def get(self, current_user, cart):
-		return marshal(cart, cart_fields), 200
+		return {'data': {'cart': marshal(cart, cart_fields)}, 'status': 'success'}
 
 	def post(self, current_user, cart):
 		# add an item to the cart
-		args = cart_add_item_parser.parse_args(strict=True)
+		args = cart_add_item_parser.parse_args()
 		quantity = args['quantity']
 		if quantity <= 0:
-			return {'data': {}, 'errors': ['Quantity must be greater than zero'], 'msg': 'error'}, 400
+			return {'data': {'quantity': 'Quantity must be greater than zero'}, 'status': 'fail'}, 400
 
 		product = Product.query.get(args['productId'])
 		if not product:
-			return {'data': {}, 'errors': ['No such product'], 'msg': 'error'}, 404
+			return {'status': 'error', 'message': 'No such product'}, 404
 
 		new_item = CartItem.query.filter_by(cart=cart, product=product).first()
 		if new_item:
@@ -42,27 +42,28 @@ class CartResource(Resource):
 		db.session.commit()
 		db.session.refresh(new_item)
 
-		return {'data': marshal(new_item, cart_item_fields), 'errors': [], 'msg': 'ok'}, 201
+		return {'data': {'newItem': marshal(new_item, cart_item_fields)}, 'status': 'success'}, 201
 
 	def delete(self, current_user, cart):
 		# delete an item from the cart or clear the cart
-		args = cart_delete_item_parser.parse_args(strict=True)
+		args = cart_delete_item_parser.parse_args()
 		if args['productId']:
 			# delete only one item
 			product = Product.query.get(args['productId'])
 			if not product:
-				return {'data': {}, 'errors': ['No such product'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such product'}, 404
 
 			item = CartItem.query.filter_by(cart=cart, product=product).first()
 			if not item:
-				return {'data': {}, 'errors': ['No such cart item'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such cart item'}, 404
 
 			db.session.delete(item)
 			db.session.commit()
 
-			return {'data': {}, 'errors': [], 'msg': 'ok'}, 204
+			return {'data': None, 'status': 'success'}
+
 		else:
 			# delete all items
 			CartItem.query.filter_by(cart=cart).delete()
 			db.session.commit()
-			return {'data': {}, 'errors': {}, 'msg': 'ok'}, 204
+			return {'data': None, 'status': 'success'}

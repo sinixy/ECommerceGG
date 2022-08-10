@@ -4,12 +4,12 @@ from ..common.outputs import game_fields
 
 
 class GameResource(Resource):
-	def get(self, game_id=None):
+	def get(self, game_id=0):
 		if game_id:
 			game = Game.query.get(game_id)
 			if game:
-				return marshal(game, game_fields), 200
+				return {'data': {'game': marshal(game, game_fields)}, 'status': 'success'}
 			else:
-				return {'data': {}, 'errors': ['No such game'], 'msg': 'error'}, 404
+				return {'status': 'error', 'message': 'No such game'}, 404
 		else:
-			return marshal(Game.query.all(), game_fields), 200
+			return {'data': {'games': marshal(Game.query.all(), game_fields)}, 'status': 'success'}
