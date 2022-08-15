@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, marshal
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import set_access_cookies, unset_jwt_cookies
 from .common.inputs import token_create_parser
+from .common.outputs import user_fields
 from .models import User
 
 
@@ -19,7 +20,7 @@ def login_required(f):
 		except Exception as e:
 			return {'status': 'error', 'message': f'Invalid JWT. {str(e)}'}, 401
 		if not jwt:
-			return {'status': 'error', 'message': 'Login required'}, 401
+			return {'status': 'error', 'message': 'Not logged in'}, 401
 
 		jwt_header, jwt_data = jwt
 		current_user = User.query.get(jwt_data['sub'])
@@ -42,8 +43,8 @@ def logout():
 class TokenResource(Resource):
 	method_decorators = {'get': [login_required]}
 
-	def get(self):
-		return {'status': 'success', 'data': {'userId': get_jwt_identity()}}
+	def get(self, current_user):
+		return {'status': 'success', 'data': {'user': marshal(current_user, user_fields)}}
 
 	def post(self):
 		args = token_create_parser.parse_args()
