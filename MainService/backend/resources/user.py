@@ -64,7 +64,7 @@ class UserResource(Resource):
 		db.session.commit()
 		db.session.refresh(new_user)
 
-		return login(new_user.id)
+		return login(new_user)
 
 	def patch(self, current_user):
 		args = user_edit_parser.parse_args(strict=True)

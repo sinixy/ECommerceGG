@@ -30,9 +30,9 @@ def login_required(f):
 			return {'status': 'error', 'message': 'No such user'}, 404
 	return decorator
 
-def login(user_id):
-	response = jsonify({'data': None, 'status': 'success'})
-	set_access_cookies(response, create_access_token(identity=user_id))
+def login(user):
+	response = jsonify({'data': {'user': marshal(user, user_fields)}, 'status': 'success'})
+	set_access_cookies(response, create_access_token(identity=user.id))
 	return response
 
 def logout():
@@ -56,7 +56,7 @@ class TokenResource(Resource):
 		if not user.verify_password(args['password']):
 			return {'status': 'error', 'message': 'Invalid password'}, 401
 
-		return login(user.id)
+		return login(user)
 
 	def delete(self):
 		return logout()
