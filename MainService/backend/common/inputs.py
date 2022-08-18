@@ -3,20 +3,20 @@ from flask_restful import reqparse
 
 # === Game ===
 game_parser = reqparse.RequestParser(bundle_errors=True)
-game_parser.add_argument('categoryId', type=int)
+game_parser.add_argument('categoryId', type=int, location='args')
 
 # === Product ===
 product_parser = reqparse.RequestParser(bundle_errors=True)
-product_parser.add_argument('q', type=str)
-product_parser.add_argument('category', type=str)
-product_parser.add_argument('game', type=str)
-product_parser.add_argument('minPrice', type=float)
-product_parser.add_argument('maxPrice', type=float)
+product_parser.add_argument('q', type=str, location='args')
+product_parser.add_argument('category', type=str, location='args')
+product_parser.add_argument('game', type=str, location='args')
+product_parser.add_argument('minPrice', type=float, location='args')
+product_parser.add_argument('maxPrice', type=float, location='args')
 
 # === Review ===
 review_search_parser = reqparse.RequestParser(bundle_errors=True)
-review_search_parser.add_argument('productId', type=int)
-review_search_parser.add_argument('authorId', type=int)
+review_search_parser.add_argument('productId', type=int, location='args')
+review_search_parser.add_argument('authorId', type=int, location='args')
 
 review_create_parser = reqparse.RequestParser(trim=True, bundle_errors=True)
 review_create_parser.add_argument('productId', type=int, required=True)
