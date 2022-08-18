@@ -8,8 +8,8 @@ game_parser.add_argument('categoryId', type=int, location='args')
 # === Product ===
 product_parser = reqparse.RequestParser(bundle_errors=True)
 product_parser.add_argument('q', type=str, location='args')
-product_parser.add_argument('category', type=str, location='args')
-product_parser.add_argument('game', type=str, location='args')
+product_parser.add_argument('categoryId', type=int, location='args')
+product_parser.add_argument('gameId', type=int, location='args')
 product_parser.add_argument('minPrice', type=float, location='args')
 product_parser.add_argument('maxPrice', type=float, location='args')
 

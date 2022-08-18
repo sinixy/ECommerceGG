@@ -17,13 +17,13 @@ class ProductResource(Resource):
 			query = Product.query
 
 			category_game_filters = {}
-			if args['category']:
-				category = Category.query.filter_by(name=args['category']).first()
+			if args['categoryId']:
+				category = Category.query.get(args['categoryId'])
 				if not category:
 					return {'status': 'error', 'message': 'No such category'}, 404
 				category_game_filters['category_id'] = category.id
-			if args['game']:
-				game = Game.query.filter_by(name=args['game']).first()
+			if args['gameId']:
+				game = Game.query.get(args['gameId'])
 				if not game:
 					return {'status': 'error', 'message': 'No such game'}, 404
 				category_game_filters['game_id'] = game.id
