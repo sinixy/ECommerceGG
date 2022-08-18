@@ -1,6 +1,10 @@
 from flask_restful import reqparse
 
 
+# === Game ===
+game_parser = reqparse.RequestParser(bundle_errors=True)
+game_parser.add_argument('categoryId', type=int)
+
 # === Product ===
 product_parser = reqparse.RequestParser(bundle_errors=True)
 product_parser.add_argument('q', type=str)

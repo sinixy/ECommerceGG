@@ -1,5 +1,6 @@
 from flask_restful import Resource, marshal
-from ..models import Game
+from ..models import Game, CategoryGame
+from ..common.inputs import game_parser
 from ..common.outputs import game_fields
 
 
@@ -12,4 +13,9 @@ class GameResource(Resource):
 			else:
 				return {'status': 'error', 'message': 'No such game'}, 404
 		else:
-			return {'data': {'games': marshal(Game.query.all(), game_fields)}, 'status': 'success'}
+			query = Game.query
+			args = game_parser.parse_args()
+			if category_id := args['categoryId']:
+				category_game_list = CategoryGame.query.filter_by(category_id=category_id).all()
+				query = query.filter(Game.id.in_([cg.game_id for cg in category_game_list]))
+			return {'data': {'games': marshal(query.all(), game_fields)}, 'status': 'success'}
