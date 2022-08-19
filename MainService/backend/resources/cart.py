@@ -1,29 +1,20 @@
 from flask_restful import Resource, marshal
 from ..auth import login_required
-from ..models import db, Cart, CartItem, Product
+from ..models import db, CartItem, Product
 from ..common.inputs import cart_add_item_parser, cart_delete_item_parser
 from ..common.outputs import cart_fields, cart_item_fields
 
 
-def access_required(f):
-	def decorator(current_user, cart_id=0):
-		cart = Cart.query.get(cart_id)
-		if not cart:
-			return {'status': 'error', 'message': 'No such cart'}, 404
-		if cart.user_id != current_user.id:
-			return {'status': 'error', 'message': 'You cannot access this cart'}, 403
-		return f(current_user, cart)
-	return decorator
-
-
 class CartResource(Resource):
-	method_decorators = [access_required, login_required]
+	method_decorators = [login_required]
 
-	def get(self, current_user, cart):
+	def get(self, current_user):
+		cart = current_user.cart
 		return {'data': {'cart': marshal(cart, cart_fields)}, 'status': 'success'}
 
-	def post(self, current_user, cart):
+	def post(self, current_user):
 		# add an item to the cart
+		cart = current_user.cart
 		args = cart_add_item_parser.parse_args()
 		quantity = args['quantity']
 		if quantity <= 0:
@@ -44,8 +35,9 @@ class CartResource(Resource):
 
 		return {'data': {'newItem': marshal(new_item, cart_item_fields)}, 'status': 'success'}, 201
 
-	def delete(self, current_user, cart):
+	def delete(self, current_user):
 		# delete an item from the cart or clear the cart
+		cart = current_user.cart
 		args = cart_delete_item_parser.parse_args()
 		if args['productId']:
 			# delete only one item

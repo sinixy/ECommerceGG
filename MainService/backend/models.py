@@ -15,6 +15,7 @@ class User(db.Model):
 	country = db.relationship('Country', backref='users')
 	role_id = db.Column(db.Integer, db.ForeignKey('Role.id', ondelete='CASCADE'), nullable=False)
 	role = db.relationship('Role', backref='users')
+	cart = db.relationship('Cart', backref='user', uselist=False)
 	profile_picture_id = db.Column(db.Integer, db.ForeignKey('Image.id', ondelete='SET NULL'), nullable=True, default=None)
 	profile_picture = db.relationship('Image', uselist=False)
 
@@ -47,7 +48,6 @@ class Cart(db.Model):
 
 	id = db.Column(db.Integer,  primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), nullable=False)
-	user = db.relationship('User', backref='cart', uselist=False)
 
 
 class CartItem(db.Model):
