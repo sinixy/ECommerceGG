@@ -41,7 +41,14 @@ product_fields = {
 	'category_game': fields.Nested(category_game_fields),
 	'gallery': fields.Nested(gallery_fields, allow_null=True)
 }
-product_minimized_fields = {'id': fields.Integer, 'title': fields.String}
+
+product_minimized_fields = {
+	'id': fields.Integer,
+	'title': fields.String,
+	'price': fields.Float,
+	'category_game': fields.Nested(category_game_fields),
+	'gallery': fields.Nested(gallery_fields, allow_null=True)
+}
 
 country_fields = {
 	'id': fields.Integer,
