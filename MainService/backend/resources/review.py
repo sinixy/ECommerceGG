@@ -53,6 +53,8 @@ class ReviewResource(Resource):
 					return {'status': 'error', 'message': 'No such user'}, 404
 				query = query.filter_by(author=author)
 
+			query = query.order_by(Review.created_at.desc())
+
 			return {'data': {'reviews': marshal(query.all(), review_fields)}, 'status': 'success'}
 
 	def post(self, current_user):
