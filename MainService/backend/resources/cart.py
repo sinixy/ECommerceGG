@@ -44,7 +44,9 @@ class CartResource(Resource):
 			return {'status': 'error', 'message': 'No such product'}, 404
 
 		item = CartItem.query.filter_by(cart=cart, product=product).first()
+		is_new = False
 		if not item:
+			is_new = True
 			item = CartItem(quantity=0, cart=cart, product=product)
 			db.session.add(item)
 
@@ -61,7 +63,10 @@ class CartResource(Resource):
 		db.session.commit()
 		db.session.refresh(item)
 
-		return {'data': {'item': marshal(item, cart_item_fields)}, 'status': 'success'}, 201
+		return {'data': {
+			'item': marshal(item, cart_item_fields),
+			'is_new': is_new
+		}, 'status': 'success'}, 201
 
 	def put(self, current_user):
 		# set item quantity
