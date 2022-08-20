@@ -1,0 +1,42 @@
+.product-col {
+  margin: 32px 0px;
+  -ms-flex: 0 0 230px;
+  flex: 0 0 270px;
+}
+
+.product-info {
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.products-search {
+  width: 60%;
+}
+
+.product-footer {
+  margin-top: 24px;
+  padding: 0px;
+}
+
+.price-input-group {
+  column-gap: 16px;
+}
+
+.price-input {
+  border: 1px solid rgb(206,212,218);
+  height: 35px;
+}
+
+.card-body {
+  padding: 0px;
+}
+
+.card-link {
+  color: rgb(34,31,31);
+  text-decoration: none;
+}
+
+.card-text {
+  margin-bottom: 2px;
+}
