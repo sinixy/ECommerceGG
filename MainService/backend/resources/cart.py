@@ -28,7 +28,11 @@ class CartResource(Resource):
 
 	def get(self, current_user):
 		cart = current_user.cart
-		return {'data': {'cart': marshal(cart, cart_fields)}, 'status': 'success'}
+		cart_dict = marshal(cart, cart_fields)
+		if type(cart_dict['items']) is list:
+			if len(cart_dict['items']) == 0:
+				cart_dict['items'] = None
+		return {'data': {'cart': cart_dict}, 'status': 'success'}
 
 	def post(self, current_user):
 		# add an item to the cart
