@@ -35,7 +35,10 @@ cart_add_item_parser.add_argument('quantity', type=int, required=True)
 cart_add_item_parser.add_argument('productId', type=int, required=True)
 
 cart_delete_item_parser = reqparse.RequestParser()
-cart_delete_item_parser.add_argument('productId', type=int)
+cart_delete_item_parser.add_argument('itemId', type=int)
+
+cart_put_item_parser = cart_delete_item_parser.copy()
+cart_put_item_parser.add_argument('quantity', type=int)
 
 # === Token ===
 token_create_parser = reqparse.RequestParser(bundle_errors=True)

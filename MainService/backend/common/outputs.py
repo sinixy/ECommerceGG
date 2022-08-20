@@ -46,6 +46,8 @@ product_minimized_fields = {
 	'id': fields.Integer,
 	'title': fields.String,
 	'price': fields.Float,
+	'available_quantity': fields.Integer,
+	'min_quantity': fields.Integer,
 	'category_game': fields.Nested(category_game_fields),
 	'gallery': fields.Nested(gallery_fields, allow_null=True)
 }
