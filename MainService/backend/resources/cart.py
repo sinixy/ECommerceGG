@@ -5,6 +5,24 @@ from ..common.inputs import cart_add_item_parser, cart_put_item_parser, cart_del
 from ..common.outputs import cart_fields, cart_item_fields
 
 
+def validate_quantity(quantity, min_quantity, available_quantity):
+	if available_quantity < quantity:
+		return {
+			'data': {
+				'quantity': 'Invalid quantity: requested quantity is greater than product supply'
+			},
+			'status': 'fail'
+		}, 400
+	if min_quantity > quantity:
+		return {
+			'data': {
+				'quantity': 'Invalid quantity: requested quantity is less than min product quantity'
+			},
+			'status': 'fail'
+		}, 400
+	return {}, 200
+
+
 class CartResource(Resource):
 	method_decorators = [login_required]
 
@@ -16,24 +34,30 @@ class CartResource(Resource):
 		# add an item to the cart
 		cart = current_user.cart
 		args = cart_add_item_parser.parse_args()
-		quantity = args['quantity']
-		if quantity <= 0:
-			return {'data': {'quantity': 'Quantity must be greater than zero'}, 'status': 'fail'}, 400
 
 		product = Product.query.get(args['productId'])
 		if not product:
 			return {'status': 'error', 'message': 'No such product'}, 404
 
-		new_item = CartItem.query.filter_by(cart=cart, product=product).first()
-		if new_item:
-			new_item.quantity += quantity
-		else:
-			new_item = CartItem(quantity=quantity, cart=cart, product=product)
-			db.session.add(new_item)
-		db.session.commit()
-		db.session.refresh(new_item)
+		item = CartItem.query.filter_by(cart=cart, product=product).first()
+		if not item:
+			item = CartItem(quantity=0, cart=cart, product=product)
+			db.session.add(item)
 
-		return {'data': {'item': marshal(new_item, cart_item_fields)}, 'status': 'success'}, 201
+		quantity = args['quantity']
+		validation = validate_quantity(
+			item.quantity + quantity,
+			item.product.min_quantity,
+			item.product.available_quantity
+		)
+		if validation[1] != 200:
+			return validation
+
+		item.quantity += quantity
+		db.session.commit()
+		db.session.refresh(item)
+
+		return {'data': {'item': marshal(item, cart_item_fields)}, 'status': 'success'}, 201
 
 	def put(self, current_user):
 		# set item quantity
@@ -46,13 +70,9 @@ class CartResource(Resource):
 
 		quantity = args['quantity']
 		if quantity > 0:
-			if item.product.available_quantity < quantity:
-				return {
-					'data': {
-						'quantity': 'Invalid quantity: requested quantity is greater than product supply'
-					},
-					'status': 'fail'
-				}, 400
+			validation = validate_quantity(quantity, item.product.min_quantity, item.product.available_quantity)
+			if validation[1] != 200:
+				return validation
 
 			item.quantity = quantity
 			db.session.commit()
