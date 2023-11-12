@@ -1,0 +1,9 @@
+username,password_hash,email,country_id,role_id,profile_picture_id
+sinixy,pbkdf2:sha256:260000$stllqQuGbCrnDrrj$ffbbb31afd61e3317d2ae3224ff1bf1ea623e548b25edf940089273af2554e5f,sinixy@example.com,236,1,5
+user1,pbkdf2:sha256:260000$1hgJkiPx7e2Xvsox$81073926451de41a55d156341101a56d5b94eb98eb5421f931f36214b697b8c6,user1@example.com,100,2,5
+user2,pbkdf2:sha256:260000$sIymxsUAbMfjBMmm$640077c573036147ea774049b22702cfe1eea9c3beddaba2c1ead878f728f204,user2@example.com,150,2,5
+user3,pbkdf2:sha256:260000$pfUfx32wfJfU5erF$4870d2c6046b9b84ec236fc7abcf5ae141c6d6f39e4845a7d2059656cda70061,user3@example.com,200,2,5
+user4,pbkdf2:sha256:260000$cdJT83WY8L1VJMoM$faedb28bef1b58abf529995ba244a04fdffafbf112f57232e508ea63fe77b5c9,user4@example.com,50,2,5
+user5,pbkdf2:sha256:260000$fYfS7YkNsMW4guxH$3057179487a003f72cad55842f00451b4f9599eed732e6b4d499fb6f769dbf39,user5@example.com,10,2,5
+user6,pbkdf2:sha256:260000$NW2730NE3AdQNK1e$5d05c46bc18a14ab6c79be2cce944ebb8a6abd0c5f54edf020fd5ed538bbd08a,user6@example.com,20,2,5
+user7,pbkdf2:sha256:260000$umckCQUfh7GC1zkz$b4545364cc866cf1e16c5e421adab67f01ccf8abd5f20dfb0a970c323410202a,user7@example.com,30,2,5

@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: ./backend
+    init: true
+    ports:
+      - 5000:5000
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+  frontend:
+    build: ./frontend
+    ports:
+      - 8000:8000
+  db:
+    image: postgres:16.0
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ecommercegg
+    ports:
+      - "4321:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
